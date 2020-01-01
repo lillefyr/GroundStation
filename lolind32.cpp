@@ -113,26 +113,25 @@ int Xdelta = 1;
 void tftDrawSatOnMap(int sat_pos_x, int sat_pos_y) {
   tft.fillRect(0, 0, 96, 8, ST7735_BLACK);
   tft.fillRect(0, 8, 160, 128, ST7735_BLACK);
-  int x = 0;
-  int y = 30;
-  drawXbm(x, y, earth_width, earth_height, earth_bits, ST7735_GREEN);
 
   tft.fillRect(83,0,128,11,ST7735_BLACK);
 
   if (sat_pos_x == 0 && sat_pos_y == 0) {
-    tftDrawString( 65,  49, "Waiting for FossaSat Pos", ST7735_WHITE );
-    tftDrawString( 63,  51, "Waiting for FossaSat Pos", ST7735_WHITE );
-    tftDrawString( 64,  50, "Waiting for FossaSat Pos", ST7735_WHITE );
+    tftDrawString( 0, 45, "Waiting for FossaSat Pos", ST7735_RED );
   }
   else {
-       if ((millis()-Xtick_interval)>Xtick_timing) {
-              // Change the value to plot
-                  XgraphVal+=Xdelta;
-                  Xtick_interval=millis();
-              // If the value reaches a limit, then change delta of value
-                    if (XgraphVal >= 6)      {Xdelta = -1; Xtick_timing=50; }// ramp down value
-                    else if (XgraphVal <= 1) {Xdelta = +1; Xtick_timing=100;} // ramp up value
-       }
+    int x = 0;
+    int y = 30;
+    drawXbm(x, y, earth_width, earth_height, earth_bits, ST7735_GREEN);
+
+    if ((millis()-Xtick_interval)>Xtick_timing) {
+    // Change the value to plot
+        XgraphVal+=Xdelta;
+        Xtick_interval=millis();
+    // If the value reaches a limit, then change delta of value
+          if (XgraphVal >= 6)      {Xdelta = -1; Xtick_timing=50; }// ramp down value
+          else if (XgraphVal <= 1) {Xdelta = +1; Xtick_timing=100;} // ramp up value
+    }
     tft.fillCircle(sat_pos_x+x, sat_pos_y+y, XgraphVal+1,    ST7735_BLACK);
     tft.drawCircle(sat_pos_x+x, sat_pos_y+y, XgraphVal,      ST7735_WHITE);
     tft.drawCircle(sat_pos_x+x, sat_pos_y+y, (XgraphVal/3)+1,ST7735_BLACK);

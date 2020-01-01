@@ -1,0 +1,47 @@
+#ifndef _CONFIG_H
+#define _CONFIG_H
+
+//**********************
+// User configuration //
+char station[21] = "test_YOURSTATUIN";
+float latitude = 0.0;
+float longitude = 0.0;
+char mqtt_server_name[31] = "fossa.apaluba.com";
+int mqtt_port = 8883;
+char mqtt_user[31] = "YOUR MQTT USER";
+char mqtt_pass[31] = "YOUR MQTT PASSWORD";
+char tz[40] = "YOUR TIMEZONE";
+char wifi_ssid[31] = "ssid";
+char wifi_pass[31] = "password";
+
+// Configuration for Lolin32 lite
+// ref: Library/Arduino15/packages/esp32/hardware/esp32/1.0.4/variants/lolin32/pins_arduino.h
+// Pin connections LOLIN32-DEV (D32) and SX1262
+// 18 SCK
+// 19 MISO
+// 27 MOSI
+// 5  SS
+// RESET 26
+#define DIO1 27
+#define BUSY 14
+
+// used by TFT displays in lolind32
+/*
+#define TFT_CS  13 //
+#define TFT_RST 15 // Or set to -1 and connect to RESET pin (There is no pin)
+#define TFT_DC  2 // A0
+#define TFT_SDA 0 // Data out
+#define TFT_SCK 12 // Clock out
+*/
+
+#define LORA_CARRIER_FREQUENCY   436.7f  // MHz
+#define LORA_BANDWIDTH           125.0f  // kHz dual sideband
+#define LORA_SPREADING_FACTOR    11
+#define LORA_CODINGRATE          8     // 4/8, Extended Hamming
+#define LORA_OUTPUT_POWER        21     // dBm
+#define LORA_CURRENT_LIMIT       120    // mA
+#define SYNC_WORD_6X             0x12   // RadioLib uses uint8_t for SX126x  ( change to 0xFF for Fossasat-1 )
+#define LORA_PREAMBLE_LENGTH     8     // Same for Tx and Rx
+#define TCXO_VOLTAGE             0.0    // allowed voltages ( my chip does not have TCXO )§
+
+#endif

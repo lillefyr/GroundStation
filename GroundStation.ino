@@ -70,11 +70,12 @@ constexpr auto LOG_TAG = "FOSSAGS";
 
 Esp32_mqtt_clientClass mqtt;
 
-const int fs_version = 1912291;      // version year month day release
+const int fs_version = 2001011;      // version year month day release
 const char*  message[32];
 bool mqtt_connected = false;
 
 void manageMQTTEvent (esp_mqtt_event_id_t event) {
+  Serial.println("manageMQTTEvent");
   if (event == MQTT_EVENT_CONNECTED) {
 	  mqtt_connected = true;
     String topic = "fossa/" + String(mqtt_user) + "/" + String(station) + "/data/#";
@@ -181,7 +182,6 @@ void setup() {
   //connect to WiFi
   Serial.println("connect to WiFi");
   WiFi.begin(wifi_ssid, wifi_pass);
-  delay(500);
 
   Serial.println();
   Serial.print("Waiting for WiFi... ");
@@ -196,16 +196,18 @@ void setup() {
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 
+  delay(500);
+
 #ifdef LOLIND32
   tftSetup(fs_version, wifi_ssid);
 #endif
 
 #define MQTTREQUIRED
 #ifdef MQTTREQUIRED
-  ESP_LOGI (LOG_TAG, "mqtt.init");
   mqtt.init (mqtt_server_name, mqtt_port, mqtt_user, mqtt_pass);
 
   String topic = "fossa/" + String(mqtt_user) + "/" + String(station) + "/status";
+  Serial.println(topic);
  
   mqtt.setLastWill(topic.c_str());
   mqtt.onEvent (manageMQTTEvent);
@@ -558,22 +560,25 @@ void loop() {
 }
 
 
-void  welcome_message (void) {
-        const size_t capacity = JSON_ARRAY_SIZE(2) + JSON_OBJECT_SIZE(16);
-          DynamicJsonDocument doc(capacity);
-          doc["station"] = station;
-          JsonArray station_location = doc.createNestedArray("station_location");
-          station_location.add(latitude);
-          station_location.add(longitude);
-          doc["version"] = fs_version;
+void welcome_message (void) {
+  Serial.println("welcome_message");
+  const size_t capacity = JSON_ARRAY_SIZE(2) + JSON_OBJECT_SIZE(16);
+  DynamicJsonDocument doc(capacity);
+  doc["station"] = station;
+  JsonArray station_location = doc.createNestedArray("station_location");
+  station_location.add(latitude);
+  station_location.add(longitude);
+  doc["version"] = fs_version;
 
 //          doc["time"] = ;
-          serializeJson(doc, Serial);
-          String topic = "fossa/" + String(mqtt_user) + "/" + String(station) + "/welcome";
-          char buffer[512];
-          size_t n = serializeJson(doc, buffer);
-          mqtt.publish(topic.c_str(), buffer,n );
-          ESP_LOGI (LOG_TAG, "Wellcome sent");
+  serializeJson(doc, Serial);
+  Serial.println();
+  String topic = "fossa/" + String(mqtt_user) + "/" + String(station) + "/welcome";
+  Serial.println(topic);
+  char buffer[512];
+  size_t n = serializeJson(doc, buffer);
+  mqtt.publish(topic.c_str(), buffer,n );
+  ESP_LOGI (LOG_TAG, "Welcome sent");
 }
 
 void  json_system_info(void) {
