@@ -58,7 +58,7 @@ void myLogging(char * text){
 }
 //
 // WiFI logo
-//
+/*
 void tftWifiLogo(bool wifi_connected, String ipaddress, bool mqtt_connected, bool statusReached) {
   tft.fillRect(0, 0, 96, 8, ST7735_BLACK);
   tft.fillRect(0, 8, 160, 128, ST7735_BLACK);
@@ -73,15 +73,24 @@ void tftWifiLogo(bool wifi_connected, String ipaddress, bool mqtt_connected, boo
   if ( mqtt_connected ){ tftDrawString(40,75,"MQTT On ",ST7735_GREEN); } else { tftDrawString(40,75,"MQTT Off",ST7735_GREEN); }
   if ( statusReached ){ tftDrawString(40,85,"Status reached    ",ST7735_GREEN); } else { tftDrawString(40,85,"Status not reached",ST7735_RED); }
 }
+*/
 
 //
 // Fossasat Logo
 //
-void tftFossasatLogo(String station){
+void tftFossasatLogo(String station, bool wifi_connected, String ipaddress, bool mqtt_connected){
   tft.fillRect(0, 0, 96, 8, ST7735_BLACK);
   tft.fillRect(0, 8, 160, 128, ST7735_BLACK);
-  drawXbm(20 , 30 , Fossa_Logo_width, Fossa_Logo_height, Fossa_Logo_bits, ST7735_GREEN);
-  tftDrawString(30,70,"sta: "+station,ST7735_GREEN);
+  drawXbm(20 , 10 , Fossa_Logo_width, Fossa_Logo_height, Fossa_Logo_bits, ST7735_GREEN);
+  tftDrawString(30,50,"sta: "+station,ST7735_GREEN);
+  if ( wifi_connected ){
+    tftDrawString(30,70,"WiFi Connected ",ST7735_GREEN);
+    tftDrawString(30,85, ipaddress, ST7735_GREEN);
+  } else {
+    tftDrawString(30,70,"WiFi Connecting",ST7735_RED);
+  }
+
+  if ( mqtt_connected ){ tftDrawString(30,100,"MQTT On ",ST7735_GREEN); } else { tftDrawString(30,100,"MQTT Off",ST7735_RED); }
 }
 
 struct tm timeinfo;
@@ -115,29 +124,29 @@ void tftDrawSatOnMap(int sat_pos_x, int sat_pos_y) {
   tft.fillRect(0, 8, 160, 128, ST7735_BLACK);
 
   tft.fillRect(83,0,128,11,ST7735_BLACK);
+  
+  int x = 0;
+  int y = 30;
+  drawXbm(x, y, earth_width, earth_height, earth_bits, ST7735_GREEN);
 
-  if (sat_pos_x == 0 && sat_pos_y == 0) {
-    tftDrawString( 0, 45, "Waiting for FossaSat Pos", ST7735_RED );
+  if ((millis()-Xtick_interval)>Xtick_timing) {
+  // Change the value to plot
+      XgraphVal+=Xdelta;
+      Xtick_interval=millis();
+  // If the value reaches a limit, then change delta of value
+        if (XgraphVal >= 6)      {Xdelta = -1; Xtick_timing=50; }// ramp down value
+        else if (XgraphVal <= 1) {Xdelta = +1; Xtick_timing=100;} // ramp up value
   }
-  else {
-    int x = 0;
-    int y = 30;
-    drawXbm(x, y, earth_width, earth_height, earth_bits, ST7735_GREEN);
-
-    if ((millis()-Xtick_interval)>Xtick_timing) {
-    // Change the value to plot
-        XgraphVal+=Xdelta;
-        Xtick_interval=millis();
-    // If the value reaches a limit, then change delta of value
-          if (XgraphVal >= 6)      {Xdelta = -1; Xtick_timing=50; }// ramp down value
-          else if (XgraphVal <= 1) {Xdelta = +1; Xtick_timing=100;} // ramp up value
-    }
+  if ((sat_pos_x != 0) && (sat_pos_y != 0)) {
     tft.fillCircle(sat_pos_x+x, sat_pos_y+y, XgraphVal+1,    ST7735_BLACK);
     tft.drawCircle(sat_pos_x+x, sat_pos_y+y, XgraphVal,      ST7735_WHITE);
     tft.drawCircle(sat_pos_x+x, sat_pos_y+y, (XgraphVal/3)+1,ST7735_BLACK);
     tft.drawCircle(sat_pos_x+x, sat_pos_y+y, XgraphVal/3,    ST7735_WHITE);
   }
-
+  else
+  {
+    tftDrawString( 10, 120, "Waiting for FossaSat Pos", ST7735_RED );
+  }
 }
 
 void tftShowValues(float batteryChargingVoltage,
@@ -193,10 +202,9 @@ void tftStatus(float batteryChargingVoltage,
 
   // select frame every 5 seconds (only once)
   if ( lastSecondDone != lastSec ){
-    if (lastSec%20 == 0)  { tftFossasatLogo(station); lastSecondDone = lastSec; }
-    if (lastSec%20 == 5)  { tftWifiLogo(wifi_connected, ipaddress, mqtt_connected, statusReached);  lastSecondDone = lastSec;}
-    if (lastSec%20 == 10) { tftDrawSatOnMap(sat_pos_x, sat_pos_y); lastSecondDone = lastSec;}
-    if (lastSec%20 == 15) { tftShowValues(batteryChargingVoltage,
+    if (lastSec%20 == 0)  { tftFossasatLogo(station, wifi_connected, ipaddress, mqtt_connected); lastSecondDone = lastSec; }
+    if (lastSec%20 == 5)  { tftDrawSatOnMap(sat_pos_x, sat_pos_y); lastSecondDone = lastSec;}
+    if (lastSec%20 == 10) { tftShowValues(batteryChargingVoltage,
                                               batteryChargingCurrent,
                                               batteryVoltage,
                                               solarCellAVoltage,
@@ -241,5 +249,5 @@ void tftSetup(int ver, char * ssid){
   tft.setTextColor(ST7735_WHITE);
   tft.setTextSize(1);
 
-  tftWifiLogo(false, "", false, false);
+  tftFossasatLogo("", false, "", false);
 }

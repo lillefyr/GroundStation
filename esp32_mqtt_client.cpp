@@ -1,6 +1,22 @@
-// 
-// 
-// 
+/*
+  esp32_mqtt_client.cpp - MQTT connection class
+  
+  Copyright (C) 2020 @G4lile0, @gmag12 and @dev_4m1g0
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 
 #define MQTT_TAG "ESP32_MQTT"
 
@@ -26,7 +42,7 @@ void Esp32_mqtt_clientClass::init(const char* host, int32_t port, const char* us
 #endif // SECURE_MQTT
 	mqtt_cfg.event_handle = mqtt_event_handler;
 	mqtt_cfg.user_context = this;
-	ESP_LOGI (MQTT_TAG, "this = %p", this);
+	//ESP_LOGI (MQTT_TAG, "this = %p", this);
 }
 
 bool Esp32_mqtt_clientClass::begin () {
@@ -39,7 +55,7 @@ bool Esp32_mqtt_clientClass::begin () {
 	err = esp_mqtt_client_start (client);
 	ESP_LOGI (MQTT_TAG, "Client connect. Error = %d %s", err, esp_err_to_name (err));
 
-	return true;
+	return err == ESP_OK;
 }
 
 bool Esp32_mqtt_clientClass::setLastWill (const char* topic) {
